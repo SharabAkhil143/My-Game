@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tic-Tac-Toe</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Tic-Tac-Toe</h1>
+  <div id="board">
+    <div class="cell" data-row="0" data-col="0"></div>
+    <div class="cell" data-row="0" data-col="1"></div>
+    <div class="cell" data-row="0" data-col="2"></div>
+    <div class="cell" data-row="1" data-col="0"></div>
+    <div class="cell" data-row="1" data-col="1"></div>
+    <div class="cell" data-row="1" data-col="2"></div>
+    <div class="cell" data-row="2" data-col="0"></div>
+    <div class="cell" data-row="2" data-col="1"></div>
+    <div class="cell" data-row="2" data-col="2"></div>
+  </div>
+  <p id="status">Player O's turn</p>
+  <button onclick="resetGame()">Restart Game</button>
+
+  <script>
+    let currentPlayer = "O"; // You start first
+const status = document.getElementById("status");
+
+// Select all cells and add click listeners
+document.querySelectorAll(".cell").forEach(cell => {
+  cell.addEventListener("click", () => {
+    // Prevent overwriting filled cells
+    if (cell.textContent !== "") return;
+
+    // Fill with current player's mark
+    cell.textContent = currentPlayer;
+
+    // Optionally add style
+    cell.style.color = currentPlayer === "O" ? "blue" : "red";
+
+    // Switch player
+    currentPlayer = currentPlayer === "O" ? "X" : "O";
+    status.textContent = `Player ${currentPlayer}'s turn`;
+    cell.classList.add("filled");
+    winningCells.forEach(c => c.classList.add("winner"));
+    // Check for empty cells
+    const empty = [...document.querySelectorAll(".cell")].filter(c => c.textContent === "");
+
+    const move = empty[Math.floor(Math.random() * empty.length)];
+
+    // Check for a win
+    const winningCombinations = [
+      // Horizontal
+      [[0, 0], [0, 1], [0, 2]],
+      [[1, 0], [1, 1], [1, 2]],
+      [[2, 0], [2, 1], [2, 2]],
+      // Vertical
+      [[0, 0], [1, 0], [2, 0]],
+      [[0, 1], [1, 1], [2, 1]],
+      [[0, 2], [1, 2], [2, 2]],
+      // Diagonal
+      [[0, 0], [1, 1], [2, 2]],
+      [[0, 2], [1, 1], [2, 0]]
+    ];
+
+    const winningCells = winningCombinations.find(combination => {
+      return combination.every(([row, col]) => {
+        return document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`).textContent === currentPlayer;
+      });
+    });
+
+    if (winningCells) {
+      status.textContent = `Player ${currentPlayer} wins!`;
+      winningCells.forEach(([row, col]) => {
+        document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`).classList.add("winner");
+      });
+    } else if ([...document.querySelectorAll(".cell")].every(cell => cell.textContent !== "")) {
+      status.textContent = "It's a draw!";
+    } else {
+      aiMove();
+    }
+
+  });
+});
+    // AI Player Logic
+    function aiMove() {
+      const empty = [...document.querySelectorAll(".cell")].filter(c => c.textContent === "");
+      if (empty.length === 0) return;
+
+      const move = empty[Math.floor(Math.random() * empty.length)];
+      move.textContent = "X";
+      move.style.color = "red";
+      currentPlayer = "O";
+      status.textContent = "Player O's turn";
+    }
+
+    
+  const winningCombinations = [
+    [[0, 0], [0, 1], [0, 2]],
+    [[1, 0], [1, 1], [1, 2]],
+    [[2, 0], [2, 1], [2, 2]],
+    [[0, 0], [1, 0], [2, 0]],
+    [[0, 1], [1, 1], [2, 1]],
+    [[0, 2], [1, 2], [2, 2]],
+    [[0, 0], [1, 1], [2, 2]],
+    [[0, 2], [1, 1], [2, 0]]
+  ];
+
+  function checkWin(player) {
+    return winningCombinations.find(combination =>
+      combination.every(([row, col]) =>
+        document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`).textContent === player
+      )
+    );
+  }
+
+  function handleMove(cell) {
+    if (cell.textContent !== "") return;
+
+    cell.textContent = currentPlayer;
+    cell.style.color = currentPlayer === "O" ? "blue" : "red";
+
+    const win = checkWin(currentPlayer);
+    if (win) {
+      status.textContent = `Player ${currentPlayer} wins!`;
+      win.forEach(([row, col]) => {
+        document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`).classList.add("winner");
+      });
+      return;
+    }
+
+    if ([...document.querySelectorAll(".cell")].every(c => c.textContent !== "")) {
+      status.textContent = "It's a draw!";
+      return;
+    }
+
+    currentPlayer = currentPlayer === "O" ? "X" : "O";
+    status.textContent = `Player ${currentPlayer}'s turn`;
+  }
+
+  document.querySelectorAll(".cell").forEach(cell => {
+    cell.addEventListener("click", () => handleMove(cell));
+  });
+
+  function resetGame() {
+    document.querySelectorAll(".cell").forEach(cell => {
+      cell.textContent = "";
+      cell.classList.remove("winner");
+    });
+    currentPlayer = "O";
+    status.textContent = "Player O's turn";
+  }
+
+
+
+  </script>
+  
+</body>
+</html>
